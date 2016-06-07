@@ -1,0 +1,27 @@
+<% include ./parts/layout %>
+<% include ./parts/navbar %>
+<body>
+    <div class='container'>
+        <form method='post' class='form-group'>
+            <div class='col-xs-6 col-md-5'>
+                <input class='form-control' name='keyword' value='<%= search.keyword %>' placeholder='Keyword...' required />
+            </div>
+            <div class='col-xs-6 col-md-5'>
+                <input class='form-control' name='location' value='<%= search.location %>' placeholder='Location...' />
+            </div>
+            <button class='col-md-2 btn btn-primary'><i class='fa fa-search'></i></button>
+        </form>
+        <hr>
+        <br>
+        <div class='row'>
+            <% for(var result in results){ %>
+                <div class='col-md-3'>
+                    <div class='jumbotron'>
+                        <img class='img-responsive' src='https://upload.wikimedia.org/wikipedia/commons/c/c6/Sierpinski_square.jpg'>
+                    </div>    
+                </div>
+            <% } %>
+            <button class='col-xs-offset-2 col-xs-8 btn btn-default' style='margin-bottom: 2%;'>Show More</button>
+        </div>
+    </div>
+</body>
