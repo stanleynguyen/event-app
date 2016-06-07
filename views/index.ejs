@@ -1,0 +1,20 @@
+<% include ./parts/layout %>
+<% include ./parts/navbar %>
+<body>
+    <div class='container'>
+        <h1 class='text-center'><i class='fa fa-map-marker'></i>  I'm Going Places</h1>
+        <form method='post'>
+            <fieldset class='form-group'>
+                <label for='keyword'>Keyword</label>
+                <input class='form-control' name='keyword' placeholder='Keyword...' required>
+            </fieldset>
+            <fieldset class='form-group'>
+                <label for='location'>Optional</label>
+                <input class='form-control col-xs-3' name='location' placeholder='Location...'>
+            </fieldset>
+            <fieldset class='form-group'>
+                <button class='form-control btn btn-primary'><i class='fa fa-search'></i> Search</button>
+            </fieldset>
+        </form>
+    </div>
+</body>

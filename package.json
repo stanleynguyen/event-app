@@ -1,0 +1,29 @@
+{
+  "name": "event-app",
+  "version": "1.0.0",
+  "description": "EVENT APP -------------- by Stanley",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stanleynguyen/event-app.git"
+  },
+  "author": "stanleynguyen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stanleynguyen/event-app/issues"
+  },
+  "homepage": "https://github.com/stanleynguyen/event-app#readme",
+  "dependencies": {
+    "body-parser": "^1.15.1",
+    "ejs": "^2.4.2",
+    "express": "^4.13.4",
+    "express-session": "^1.13.0",
+    "mongoose": "^4.4.19",
+    "passport": "^0.3.2",
+    "passport-facebook": "^2.1.1",
+    "yelp": "^1.0.1"
+  }
+}
