@@ -2,6 +2,7 @@ var Yelp = require("yelp");
 var yelp = new Yelp(require('../config/yelp'));
 
 module.exports.yelpSearch = function(req, res){
+    console.log(req.body);
     var term = req.body.keyword;
     var location = req.body.location;
     yelp.search({term: term, location: location}, function(err, data){
