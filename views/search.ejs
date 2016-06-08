@@ -8,30 +8,48 @@
                     <input class='form-control' name='keyword' value='<%= search.keyword %>' placeholder='Keyword...' required />
                 </div>
                 <div class='col-xs-6 col-md-5'>
-                    <input class='form-control' name='location' value='<%= search.location %>' placeholder='Location...' />
+                    <input class='form-control' name='location' value='<%= search.location %>' placeholder='Location...' required/>
                 </div>
                 <button class='col-xs-12 col-md-2 btn btn-primary'><i class='fa fa-search'></i></button>
             </form>            
         </div>
         <br>
         <div class='row' id='results'>
-            <% for(var index in results){ %>
+            <% if(results.length === 0) { %>
+                <img class='img-responsive' src='./images/no-result.png'>
+            <% }else{ %>
+                <% for(var index in results){ %>
                     <div class='jumbotron'>
                         <div class='row'>
-                            <div class='col-md-3 col-xs-6'>
-                                <img class='img-responsive' src='<%= results[index].image_url %>'>
+                            <div class='col-md-2'>
+                                <img class='img-responsive' src='<%= results[index].image_url || "./images/locationplaceholder.png" %>'>
                             </div>    
-                            <div class='col-md-3 col-xs-6'>
-                                <p><%= results[index].name %></p>
+                            <div class='col-md-8'>
+                                <p><strong><%= results[index].name %></strong></p>
+                                <img class='img-responsive' src='<%= results[index].rating_img_url_large %>'>
+                                <% var address = '' %>
+                                <% for(var ind in results[index].location.display_address){ %>
+                                <% address += results[index].location.display_address[ind]+' ' %>
+                                <% } %>
+                                <p><%= address %></p>
+                            </div>
+                            <div class='col-md-2'>
+                                <a href='/biz/<%= results[index].id %>' class='btn btn-success' style='margin: 1%;'><i class='fa fa-map-marker'></i> Been Here!</a>
+                                <a href= '<%= results[index].url %>' target='_blank' class='btn btn-danger'style='margin: 1%;'><i class='fa fa-share'></i> Yelp</a>
                             </div>
                         </div>
                     </div>    
+                <% } %>
             <% } %>
         </div>
         <div class='row'>
             <button class='col-xs-offset-2 col-xs-8 btn btn-default' style='margin-bottom: 2%;' id='more'>Show More</button>
         </div>
     </div>
+    
+    <script>
+        if(<%= results.length %> === 0) $('#more').hide();
+    </script>
     
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -42,8 +60,34 @@
             socket.emit('more', '<%= search.keyword %>', '<%= search.location %>', offset);
         });
         socket.on('newResults', function(results){
-            for(var ind in results){
-                $('#results').append("<div class='jumbotron'><div class='row'><div class='col-md-3 col-xs-6'><img class='img-responsive' src='"+results[ind].image_url %>+"'></div><div class='col-md-3 col-xs-6'><p>"+results[ind].name+"</p></div></div></div>");
+            if(results.length>0){
+                for(var ind in results){
+                    var appendText = "\
+                    <div class='jumbotron'>\
+                        <div class='row'>\
+                            <div class='col-md-2'>\
+                                <img class='img-responsive' src='"+(results[ind].image_url || "./images/locationplaceholder.png")+"'>\
+                            </div>\
+                            <div class='col-md-8'>\
+                                <p><strong>"+results[ind].name+"</strong></p>\
+                                <img class='img-responsive' src='"+results[ind].rating_img_url_large+"'>";
+                    var address = '';
+                    for(var index in results[ind].location.display_address){
+                        address += results[ind].location.display_address[index]+' ';
+                    }
+                    appendText += "<p>"+address+"</p>\
+                            </div>\
+                            <div class='col-md-2'>\
+                                <a href='/biz/"+ results[ind].id+"' class='btn btn-success' style='margin: 1%;'><i class='fa fa-map-marker'></i> Been Here!</a>\
+                                <a href= '"+ results[ind].url+"' target='_blank' class='btn btn-danger'style='margin: 1%;'><i class='fa fa-share'></i> Yelp</a>\
+                            </div>\
+                        </div>\
+                    </div>";
+                    $('#results').append(appendText);
+                }
+            }else{
+                $('#results').append('<hr><p style="text-align: center;">No more place</p>')
+                $('#more').hide();
             }
         });
     </script>

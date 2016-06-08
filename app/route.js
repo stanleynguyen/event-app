@@ -13,6 +13,10 @@ module.exports = function(app, passport, io){
         });
     });
     
+    app.get('/biz/:id', function(req, res){
+        engine.renderBizProfile(req, res);
+    });
+    
     app.get('/chat', function(req, res){
         res.render('chat.ejs');
     });
