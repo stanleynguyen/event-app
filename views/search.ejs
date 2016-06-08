@@ -15,12 +15,17 @@
         </div>
         <br>
         <div class='row'>
-            <% for(var result in results){ %>
-                <div class='col-xs-6 col-md-3'>
+            <% for(var index in results){ %>
                     <div class='jumbotron'>
-                        <img class='img-responsive' src='https://upload.wikimedia.org/wikipedia/commons/c/c6/Sierpinski_square.jpg'>
+                        <div class='row'>
+                            <div class='col-md-3 col-xs-6'>
+                                <img class='img-responsive' src='<%= results[index].image_url %>'>
+                            </div>    
+                            <div class='col-md-3 col-xs-6'>
+                                <p><%= results[index].name %></p>
+                            </div>
+                        </div>
                     </div>    
-                </div>
             <% } %>
             <button class='col-xs-offset-2 col-xs-8 btn btn-default' style='margin-bottom: 2%;'>Show More</button>
         </div>
