@@ -1,5 +1,8 @@
 var express = require("express");
 var app = express();
+var http = require("http").Server(app);
+var io = require('socket.io')(http);
+
 var mongoose = require("mongoose");
 var passport = require("passport");
 
@@ -13,9 +16,9 @@ app.use(passport.session());
 mongoose.connect(require("./config/db").url);
 
 require('./config/passport')(passport);
-require('./app/route')(app, passport);
+require('./app/route')(app, passport, io);
 
-app.listen(process.env.PORT, function(err){
+http.listen(process.env.PORT, function(err){
     if(err) throw err;
     console.log('listening at', process.env.PORT);
 });

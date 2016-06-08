@@ -14,7 +14,7 @@
             </form>            
         </div>
         <br>
-        <div class='row'>
+        <div class='row' id='results'>
             <% for(var index in results){ %>
                     <div class='jumbotron'>
                         <div class='row'>
@@ -27,7 +27,24 @@
                         </div>
                     </div>    
             <% } %>
-            <button class='col-xs-offset-2 col-xs-8 btn btn-default' style='margin-bottom: 2%;'>Show More</button>
+        </div>
+        <div class='row'>
+            <button class='col-xs-offset-2 col-xs-8 btn btn-default' style='margin-bottom: 2%;' id='more'>Show More</button>
         </div>
     </div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+        var offset = 0;
+        $('#more').click(function(){
+            offset+=10;
+            socket.emit('more', '<%= search.keyword %>', '<%= search.location %>', offset);
+        });
+        socket.on('newResults', function(results){
+            for(var ind in results){
+                $('#results').append("<div class='jumbotron'><div class='row'><div class='col-md-3 col-xs-6'><img class='img-responsive' src='"+results[ind].image_url %>+"'></div><div class='col-md-3 col-xs-6'><p>"+results[ind].name+"</p></div></div></div>");
+            }
+        });
+    </script>
 </body>

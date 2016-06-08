@@ -1,10 +1,16 @@
 var engine = require("./engine");
 
-module.exports = function(app, passport){
+module.exports = function(app, passport, io){
     app.get('/', function(req, res){
         res.render('index.ejs');
     }).post('/', function(req, res){
         engine.yelpSearch(req, res);
+    });
+    
+    io.on('connect', function(socket){
+        socket.on('more', function(keyword, location, offset){
+            engine.emitResults(io, socket, keyword, location, offset);
+        });
     });
     
     app.get('/chat', function(req, res){
