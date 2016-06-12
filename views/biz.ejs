@@ -1,0 +1,40 @@
+<% include ./parts/layout %>
+<% include ./parts/navbar %>
+<body>
+    <div class='container'>
+        <div class='row'>
+            <img src='<%= biz.image_url || "../../images/locationplaceholder.png" %>' class='img-responsive center-block' style='border-radius: 50%;'>
+            <h2 class='text-center'><%= biz.name %></h2>
+            <img src='<%= biz.rating_img_url %>' class='img-responsive center-block'>
+        </div>
+        <hr>
+        <div class='row'>
+            <div class='col-md-6'>
+                <a href='/beenhere/<%= biz.id %>' class='btn btn-success col-xs-12' style='margin: 1% 0;'><i class='fa fa-map-marker'></i> I've Been Here Before</a>
+            </div>
+            <div class='col-md-6'>
+                <a href='/bookmark/<%= biz.id %>' class='btn btn-primary col-xs-12' style='margin: 1% 0;'><i class='fa fa-bookmark'></i> Bookmark this Place</a>
+            </div>
+            <div class='col-xs-12'>
+                <h4>Contact Number: <%= biz.display_phone %></h4>
+                <h4>Address: 
+                <% var addText = '' %>
+                <% for(var ind in biz.location.display_address){ %>
+                <%     addText += biz.location.display_address[ind] + ' ' %>
+                <% } %>
+                    <%= addText %>
+                </h4>
+                <blockquote>
+                    <% if(biz.reviews){ %>
+                        <p><%= biz.snippet_text %></p>
+                        <footer><%= biz.reviews[0].user.name %> on <em><a style='text-decoration: none; color: red;' href='<%= biz.url %>' target='_blank'>Yelp</a></em></footer>
+                    <% }else{ %>
+                        <p><em>No review of this place yet!</em></p>
+                    <% } %>
+                </blockquote>
+            </div>
+        </div>
+    </div>
+</body>
+
+<% include ./parts/footer %>

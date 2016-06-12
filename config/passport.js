@@ -3,6 +3,7 @@ var fbStrat = require("passport-facebook").Strategy;
 var auth = require("./auth");
 
 var User = require("../app/models/user");
+var UserData = require("../app/models/userdata");
 
 module.exports = function(passport){
     passport.serializeUser(function(user, done){
@@ -20,18 +21,25 @@ module.exports = function(passport){
             User.findOne({'facebookID': profile.id}, function(err, user){
                 if(err) return done(err);
                 if(user){
-                    return done(null, user, profile);
+                    return done(null, user);
                 }else{
+                    var newUserData = new UserData(); 
+                    newUserData.facebookID = profile.id;
+                    newUserData.facebookProfile = profile.profileUrl;
+                    newUserData.picture = 'http://graph.facebook.com/'+profile.id+'/picture?type=large';
+                    newUserData.places = [];
+                    newUserData.bookmarks = [];
+                    newUserData.chats = {};
+                    newUserData.save(function(err){
+                       if(err) throw err;
+                    });
+                    
                     var newUser = new User();
                     newUser.facebookID = profile.id;
-                    newUser.email = profile.emails[0].value;
                     newUser.name = profile.displayName;
-                    newUser.picture = 'http://graph.facebook.com/'+profile.id+'/picture?type=large';
-                    newUser.places = ['ok'];
-                    newUser.chats = {'iniChat': 'read'};
                     newUser.save(function(err){
                         if(err) throw err;
-                        return done(null, newUser, profile);
+                        return done(null, newUser);
                     });
                 }
             });

@@ -5,12 +5,12 @@
         <div class='row'>
             <form method='post' class='form-group'>
                 <div class='col-xs-6 col-md-5'>
-                    <input class='form-control' name='keyword' value='<%= search.keyword %>' placeholder='Keyword...' required />
+                    <input class='form-control' id='keyword' name='keyword' value='<%= search.keyword %>' placeholder='Keyword...' required />
                 </div>
                 <div class='col-xs-6 col-md-5'>
-                    <input class='form-control' name='location' value='<%= search.location %>' placeholder='Location...' required/>
+                    <input class='form-control' id='location' name='location' value='<%= search.location %>' placeholder='Location...' required />
                 </div>
-                <button class='col-xs-12 col-md-2 btn btn-primary'><i class='fa fa-search'></i></button>
+                <button type='submit' class='col-xs-12 col-md-2 btn btn-primary'><i class='fa fa-search'></i></button>
             </form>            
         </div>
         <br>
@@ -26,7 +26,7 @@
                             </div>    
                             <div class='col-md-8'>
                                 <p><strong><%= results[index].name %></strong></p>
-                                <img class='img-responsive' src='<%= results[index].rating_img_url_large %>'>
+                                <img class='img-responsive' src='<%= results[index].rating_img_url %>'>
                                 <% var address = '' %>
                                 <% for(var ind in results[index].location.display_address){ %>
                                 <% address += results[index].location.display_address[ind]+' ' %>
@@ -48,6 +48,15 @@
     </div>
     
     <script>
+        $('form').submit(function(){
+            if(!($('#keyword').val() && $('#location').val())){
+                alert('Missing Field(s)!');
+                return false;
+            }
+        })
+    </script>
+    
+    <script>
         if(<%= results.length %> === 0) $('#more').hide();
     </script>
     
@@ -56,7 +65,7 @@
         var socket = io();
         var offset = 0;
         $('#more').click(function(){
-            offset+=10;
+            offset+=20;
             socket.emit('more', '<%= search.keyword %>', '<%= search.location %>', offset);
         });
         socket.on('newResults', function(results){
@@ -70,7 +79,7 @@
                             </div>\
                             <div class='col-md-8'>\
                                 <p><strong>"+results[ind].name+"</strong></p>\
-                                <img class='img-responsive' src='"+results[ind].rating_img_url_large+"'>";
+                                <img class='img-responsive' src='"+results[ind].rating_img_url+"'>";
                     var address = '';
                     for(var index in results[ind].location.display_address){
                         address += results[ind].location.display_address[index]+' ';

@@ -14,7 +14,16 @@ module.exports = function(app, passport, io){
     });
     
     app.get('/biz/:id', function(req, res){
+        if(req.user) console.log('been here? ',req.user.beenHereBefore(req.params.id));
         engine.renderBizProfile(req, res);
+    });
+    
+    app.get('/beenhere/:id', function(req, res){
+        engine.beenHere(req, res);
+    });
+    
+    app.get('/bookmark/:id', function(req, res){
+        engine.bookMark(req, res);
     });
     
     app.get('/chat', function(req, res){
@@ -38,11 +47,16 @@ module.exports = function(app, passport, io){
     });
     
     app.get('/profile', function(req, res){
+        console.log('unread message: ');
         res.json(req.user);
     });
     
     app.get('/logout', function(req, res){
         req.logout();
         res.redirect('/');
+    });
+    
+    app.get('*', function(req, res){
+        res.render('404.ejs');
     });
 };

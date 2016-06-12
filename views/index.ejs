@@ -6,15 +6,24 @@
         <form method='post'>
             <fieldset class='form-group'>
                 <label for='keyword'>Keyword</label>
-                <input class='form-control' name='keyword' placeholder='Keyword...' required>
+                <input class='form-control' id='keyword' name='keyword' placeholder='Keyword...' required>
             </fieldset>
             <fieldset class='form-group'>
                 <label for='location'>Location</label>
-                <input class='form-control col-xs-3' name='location' placeholder='Location...' required>
+                <input class='form-control col-xs-3' id='location' name='location' placeholder='Location...' required>
             </fieldset>
             <fieldset class='form-group'>
                 <button class='form-control btn btn-primary'><i class='fa fa-search'></i> Search</button>
             </fieldset>
         </form>
     </div>
+    
+    <script>
+        $('form').submit(function(){
+            if(!($('#keyword').val() && $('#location').val())){
+                alert('Missing Field(s)!');
+                return false;
+            }
+        })
+    </script>
 </body>
