@@ -9,26 +9,33 @@ var userSchema = new mongoose.Schema({
 userSchema.methods.getUnread = function(){
     var _this = this;
     return new Promise(function(resolve, reject){
-        var result = 0;
+        var anObject = {id: _this.facebookID, unread: 0};
         userData.findOne({facebookID: _this.facebookID}, 'chats', function(err, data){
             if(err) throw err;
-            console.log(data);
             for(var key in data.chats){
-                if(data.chats[key]==='unread') result++;
+                if(data.chats[key]==='unread') anObject.unread++;
             }
-            resolve(result);
+            resolve(anObject);
         });
     });
 };
 
-userSchema.methods.beenHereBefore = function(place){
-    userData.findOne({facebookID: this.facebookID}, function(err, data){
+userSchema.methods.beenHereBefore = function(place, object){
+    return new Promise(function(resolve, reject){
+    userData.findOne({facebookID: object.id}, 'places bookmarks', function(err, data){
        if(err) throw err;
        if(data.places.indexOf(place)===-1){
-           return false;
+           object.been = false;
        }else{
-           return true;
+           object.been = true;
        }
+       if(data.bookmarks.indexOf(place)===-1){
+           object.book = false;
+       }else{
+           object.book = true;
+       }
+       resolve(object);
+    });
     });
 };
 

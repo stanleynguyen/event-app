@@ -47,7 +47,9 @@ module.exports = function(app, passport, io){
     });
     
     app.get('/profile', function(req, res){
-        req.user.getUnread().then(console.log);
+        req.user.getUnread()
+            .then(req.user.beenHereBefore.bind(null, 'merlion-park-singapore'))
+            .then(console.log.bind(null, 'unread: '));
         res.json(req.user);
     });
     
