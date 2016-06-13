@@ -47,7 +47,7 @@ module.exports = function(app, passport, io){
     });
     
     app.get('/profile', function(req, res){
-        console.log('unread message: ');
+        req.user.getUnread().then(console.log);
         res.json(req.user);
     });
     

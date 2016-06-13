@@ -7,16 +7,18 @@ var userSchema = new mongoose.Schema({
 });
 
 userSchema.methods.getUnread = function(){
-    var result = 0;
-    userData.findOne({facebookID: this.facebookID}, 'chats', function(err, data){
-        if(err) throw err;
-        console.log(data);
-        for(var key in data.chats){
-            console.log(key, data.chats[key]);
-            if(data.chats[key]==='unread') result++;
-        }
+    var _this = this;
+    return new Promise(function(resolve, reject){
+        var result = 0;
+        userData.findOne({facebookID: _this.facebookID}, 'chats', function(err, data){
+            if(err) throw err;
+            console.log(data);
+            for(var key in data.chats){
+                if(data.chats[key]==='unread') result++;
+            }
+            resolve(result);
+        });
     });
-    return result;
 };
 
 userSchema.methods.beenHereBefore = function(place){
