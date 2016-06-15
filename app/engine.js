@@ -154,6 +154,12 @@ module.exports.renderFeed = function(req, res){
     });
 };
 
+module.exports.emitOlderPost = function(io, socket, offset){
+    buildFeed(offset).then(function(feedArray){
+        io.to(socket.id).emit('Older Posts', feedArray);
+    });
+};
+
 function buildFeed(offset){
     var userData = require("./models/userdata");
     var Feed = require("./models/feed");
@@ -169,6 +175,7 @@ function buildFeed(offset){
     }).then(function(array){
         return new Promise(function(resolve, reject){
             var resultArray = [];
+            if(array.length === 0) resolve(resultArray);
             var count=0;
             for(var i=0; i<array.length; i++){
                 resultArray.push({

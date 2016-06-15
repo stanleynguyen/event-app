@@ -71,6 +71,7 @@
         $('#more').click(function(){
             offset+=20;
             socket.emit('more', '<%= search.keyword %>', '<%= search.location %>', offset);
+            $('#more').text('Loading . . . ')
         });
         socket.on('newResults', function(results){
             if(results.length>0){
@@ -98,6 +99,7 @@
                     </div>";
                     $('#results').append(appendText);
                 }
+                $('#more').text('Show More')
             }else{
                 $('#results').append('<hr><p style="text-align: center;">No more place</p>')
                 $('#more').hide();

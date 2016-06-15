@@ -7,12 +7,6 @@ module.exports = function(app, passport, io){
         engine.yelpSearch(req, res);
     });
     
-    io.on('connect', function(socket){
-        socket.on('more', function(keyword, location, offset){
-            engine.emitResults(io, socket, keyword, location, offset);
-        });
-    });
-    
     app.get('/biz/:id', function(req, res){
         engine.renderBizProfile(req, res);
     });
@@ -49,6 +43,14 @@ module.exports = function(app, passport, io){
         engine.renderFeed(req, res);
     });
     
+    app.get('/profile/:id', myProfileOrNot, function(req, res){
+        res.send('profile '+req.params.id);
+    });
+    
+    app.get('/myprofile', loggedIn, function(req, res){
+        res.send('my profile');
+    });
+    
     app.get('/logout', function(req, res){
         req.logout();
         res.redirect('/');
@@ -57,4 +59,31 @@ module.exports = function(app, passport, io){
     app.get('*', function(req, res){
         res.render('404.ejs');
     });
+    
+    io.on('connect', function(socket){
+        socket.on('more', function(keyword, location, offset){
+            engine.emitResults(io, socket, keyword, location, offset);
+        });
+        socket.on('older', function(offset){
+            engine.emitOlderPost(io, socket, offset);
+        });
+    });
+    
 };
+
+function myProfileOrNot(req, res, next){
+    if(!req.user){
+        return next();
+    }else{
+        if(req.user.facebookID === req.params.id){
+            return res.redirect('/myprofile');
+        }else{
+            return next();
+        }
+    }
+}
+
+function loggedIn(req, res, next){
+    if(req.user) return next();
+    return res.redirect('/');
+}

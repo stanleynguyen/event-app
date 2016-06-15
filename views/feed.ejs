@@ -14,7 +14,7 @@
     }
 </style>
 <body>
-    <div class='container'>
+    <div class='container' id='feed'>
         <% feedArray.forEach(function(feed){ %>
         <div class='row'>
             <div class='col-md-1 col-xs-2'>
@@ -27,8 +27,44 @@
         </div>
         <hr>
         <% }) %>
+    </div>
+    <div class='container'>
         <div class='row'>
-            <button class='btn btn-default col-xs-12'>Show Older Feeds</button>
+            <button class='btn btn-default col-xs-12' style='margin-bottom: 2%;' id='more'>Show Older Feeds</button>
         </div>
     </div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+        var offset = 0;
+        $('#more').click(function(){
+            offset += 20;
+            socket.emit('older', offset);
+            $('#more').text('Loading . . . ');
+        });
+        socket.on('Older Posts', function(feedArray){
+            if(feedArray.length>0){
+                feedArray.forEach(function(feed){
+                    var appendText = "\
+                    <div class='row'>\
+                        <div class='col-md-1 col-xs-2'>\
+                            <a href='"+feed.profileLink+"'><img class='img-circle img-responsive' src='"+feed.picture+"'/></a>\
+                        </div>\
+                        <div class='col-md-11 col-xs-10'>\
+                            <p style='color: gray; font-size:10px;'>"+feed.when+"</p>\
+                            <p><a style='text-decoration:none; font-weight: bold;' href='"+feed.profileLink+"'>"+feed.name+"</a> "+feed.action+" <a style='text-decoration: none;' href='"+feed.bizLink+"'>"+feed.bizName+"</a></p>\
+                        </div>\
+                    </div>\
+                    <hr>\
+                    "
+                    $('#feed').append(appendText);
+                });
+                $('#more').text('Show Older Feeds');
+            }else{
+                $('#feed').append('<p style="text-align:center;">No More Older Post</p>');
+                $('#more').hide();
+            }
+        });
+    </script>
 </body>
