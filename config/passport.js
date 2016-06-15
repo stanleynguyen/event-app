@@ -25,6 +25,7 @@ module.exports = function(passport){
                 }else{
                     var newUserData = new UserData(); 
                     newUserData.facebookID = profile.id;
+                    newUserData.name = profile.displayName;
                     newUserData.facebookProfile = profile.profileUrl;
                     newUserData.picture = 'http://graph.facebook.com/'+profile.id+'/picture?type=large';
                     newUserData.places = [];

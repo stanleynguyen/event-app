@@ -22,20 +22,20 @@ userSchema.methods.getUnread = function(){
 
 userSchema.methods.beenHereBefore = function(place, object){
     return new Promise(function(resolve, reject){
-    userData.findOne({facebookID: object.id}, 'places bookmarks', function(err, data){
-       if(err) throw err;
-       if(data.places.indexOf(place)===-1){
-           object.been = false;
-       }else{
-           object.been = true;
-       }
-       if(data.bookmarks.indexOf(place)===-1){
-           object.book = false;
-       }else{
-           object.book = true;
-       }
-       resolve(object);
-    });
+        userData.findOne({facebookID: object.id}, 'places bookmarks', function(err, data){
+           if(err) throw err;
+           if(data.places.indexOf(place)===-1){
+               object.been = false;
+           }else{
+               object.been = true;
+           }
+           if(data.bookmarks.indexOf(place)===-1){
+               object.book = false;
+           }else{
+               object.book = true;
+           }
+           resolve(object);
+        });
     });
 };
 

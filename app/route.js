@@ -2,7 +2,7 @@ var engine = require("./engine");
 
 module.exports = function(app, passport, io){
     app.get('/', function(req, res){
-        res.render('index.ejs');
+        engine.renderIndex(req, res);
     }).post('/', function(req, res){
         engine.yelpSearch(req, res);
     });
@@ -14,7 +14,6 @@ module.exports = function(app, passport, io){
     });
     
     app.get('/biz/:id', function(req, res){
-        if(req.user) console.log('been here? ',req.user.beenHereBefore(req.params.id));
         engine.renderBizProfile(req, res);
     });
     
@@ -38,7 +37,7 @@ module.exports = function(app, passport, io){
             if(user){
                 req.login(user, function(err){
                     if(err) throw err;
-                    res.redirect('/profile');
+                    res.redirect('/feed');
                 });
             }else{
                 res.redirect('/');
@@ -46,11 +45,8 @@ module.exports = function(app, passport, io){
         })(req, res, next);
     });
     
-    app.get('/profile', function(req, res){
-        req.user.getUnread()
-            .then(req.user.beenHereBefore.bind(null, 'merlion-park-singapore'))
-            .then(console.log.bind(null, 'unread: '));
-        res.json(req.user);
+    app.get('/feed', function(req, res){
+        engine.renderFeed(req, res);
     });
     
     app.get('/logout', function(req, res){

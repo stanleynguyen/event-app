@@ -1,5 +1,9 @@
 <% include ./parts/layout %>
-<% include ./parts/navbar %>
+<% if(user) { %>
+    <% include ./parts/loggednav %>
+<% }else{ %>
+    <% include ./parts/navbar %>
+<% } %>
 <body>
     <div class='container'>
         <h1 class='text-center'><i class='fa fa-map-marker'></i>  I'm Going Places</h1>
