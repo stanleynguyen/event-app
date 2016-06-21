@@ -25,15 +25,6 @@
                 <div class='row'>
                     <img class='img-responsive img-rounded center-block' src='<%= profile.picture %>'>
                 </div>
-                <div class='row'>
-                    <div class='col-xs-1'></div>
-                    <% if(user){ %>
-                    <a class='btn btn-default col-xs-5 col-md-12' style='margin: 2% auto 0 auto;' href='/message/new/<%= profile.facebookID %>'><i class='glyphicon glyphicon-comment'></i> Message</a>
-                    <% }else{ %>
-                    <a class='btn btn-default disabled col-xs-5 col-md-12' style='margin: 2% auto 0 auto;' href='/message/new/<%= profile.facebookID %>'><i class='glyphicon glyphicon-comment'></i> Message</a>
-                    <% } %>
-                    <a class='btn btn-primary col-xs-5 col-md-12' style='margin: 2% auto 0 auto;' href='<%= profile.facebookProfile %>' target='_blank'><i class='fa fa-facebook'></i> Find Me</a>
-                </div>
             </div>
             <div class='col-md-10'>
                 <h2><%= profile.name %></h2>
@@ -43,7 +34,7 @@
                 		    <a href="#been" data-toggle="tab">Been To (<%= profile.places.length %>)</a>
                 		</li>
                 		<li>
-                		    <a href="#book" data-toggle="tab">Bookmark (<%= profile.bookmarks.length %>)</a>
+                		    <a href="#book" data-toggle="tab">Bookmarked (<%= profile.bookmarks.length %>)</a>
                 		</li>
                 	</ul>
             
@@ -64,18 +55,37 @@
         var socket = io();
         var places = <%- JSON.stringify(profile.places) %>;
         var bookmarks = <%- JSON.stringify(profile.bookmarks) %>;
+        var countPlace = 0, countBook = 0;
         for(var ind in places){
             socket.emit('place', places[ind]);
         }
         for (var index in bookmarks){
             socket.emit('book', bookmarks[index]);
         }
-        
         socket.on('place', function(place){
-            $('#been .list-group').append("<a class='list-group-item clearfix' href='/biz/"+place.id+"'>"+place.name+"<span class='pull-right'><img src='"+place.rating_img_url_small+"'/></span></a>")
+            $('#been .list-group').append("<a class='list-group-item clearfix' href='/biz/"+place.id+"'>"+place.name+"<button class='pull-right btn btn-xs btn-danger' value='"+place.id+"' what='place'><i class='fa fa-trash-o'></i> Remove</button></a>")
+            countPlace++;
+            if(countPlace + countBook === places.length+bookmarks.length) prepared();
         })
         socket.on('book', function(place){
-            $('#book .list-group').append("<a class='list-group-item clearfix' href='/biz/"+place.id+"'>"+place.name+"<span class='pull-right'><img src='"+place.rating_img_url_small+"'/></span></a>")
+            $('#book .list-group').append("<a class='list-group-item clearfix' href='/biz/"+place.id+"'>"+place.name+"<button class='pull-right btn btn-xs btn-danger' value='"+place.id+"' what='book'><i class='fa fa-trash-o'></i> Remove</button></a>")
+            countBook++;
+            if(countPlace + countBook === places.length+bookmarks.length) prepared();
         })
+    function prepared(){
+        $('.btn-danger').click(function(){
+            event.preventDefault();
+            $(this).parent().remove();
+            if($(this).attr('what') === 'place'){
+                countPlace--;
+                $('li.active a').text('Been To ('+countPlace+')');
+                socket.emit('remove', '<%= user.facebookID %>', 'places', $(this).val());
+            }else{
+                countBook--;
+                $('li.active a').text('Bookmarked ('+countBook+')');
+                socket.emit('remove', '<%= user.facebookID %>', 'bookmarks', $(this).val());
+            }
+        });
+    };
     </script>
 </body>

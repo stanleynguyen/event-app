@@ -1,3 +1,4 @@
-EVENT APP
+WANDERLUSTBOOK
 --------------
 by Stanley
+inspiration from Facebook

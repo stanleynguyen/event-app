@@ -127,7 +127,7 @@ function saveFeed(who, action, where){
     newFeed.who = who;
     newFeed.action = action;
     newFeed.where = where;
-    newFeed.when = new Date();
+    newFeed.when = Date.now();
     
     newFeed.save(function(err){
         if(err) throw err;
@@ -164,10 +164,10 @@ function buildFeed(offset){
     var userData = require("./models/userdata");
     var Feed = require("./models/feed");
     return new Promise(function(resolve, reject){
-        Feed.find({})
+        Feed.find()
+            .sort({when: -1})
             .skip(offset)
             .limit(20)
-            .sort({when: -1})
             .exec(function(err, array){
             if(err) return reject(err);
             resolve(array);
@@ -180,7 +180,7 @@ function buildFeed(offset){
             for(var i=0; i<array.length; i++){
                 resultArray.push({
                     profileLink: '/profile/'+array[i].who,
-                    when: array[i].when,
+                    when: (new Date(parseInt(array[i].when, 10))).toString(),
                     bizLink: '/biz/'+array[i].where,
                     action: array[i].action
                 });
@@ -204,4 +204,71 @@ function buildFeed(offset){
         });
     });
 }
+
+module.exports.renderProfile = function(req, res){
+    var UserData = require('./models/userdata');
+    UserData.findOne({facebookID: req.params.id}, function(err, profile){
+        if(err || !profile) res.render('404.ejs');
+        if(!req.user){
+            res.render('profile.ejs', {
+                    user: null,
+                    profile: profile
+                });
+        }else{
+            req.user.getUnread()
+            .then(function(info){
+                res.render('profile.ejs', {
+                    user: req.user,
+                    profile: profile,
+                    info: info
+                });
+            });
+        }
+    });
+};
+
+module.exports.renderMyProfile = function(req, res){
+    var UserData = require('./models/userdata');
+    UserData.findOne({facebookID: req.user.facebookID}, function(err, profile){
+        if(err || !profile) res.render('404.ejs');
+        req.user.getUnread()
+        .then(function(info){
+            res.render('myprofile.ejs', {
+                user: req.user,
+                profile: profile,
+                info: info
+            });
+        });
+    });
+};
+
+module.exports.emitPlace = function(io, socket, place, mode){
+    yelp.business(place, function(err, biz){
+        if(err) throw err;
+        io.to(socket.id).emit(mode, biz);
+    });
+};
+
+//this module might easily be hacked by manipulating the front end code,
+//looking for improvement in the future
+module.exports.removePlace = function(who, mode, what){
+    var UserData = require("./models/userdata");
+    if(mode==='places'){
+        UserData.update({
+            facebookID: who
+        },{
+            $pull: {places: what}
+        }, function(err){
+            if(err) throw err;
+        });
+    }else if(mode === 'bookmarks'){
+        UserData.update({
+            facebookID: who
+        },{
+            $pull: {bookmarks: what}
+        }, function(err){
+            if(err) throw err;
+        });
+    }
+};
 

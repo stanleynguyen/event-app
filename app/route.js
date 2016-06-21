@@ -11,11 +11,11 @@ module.exports = function(app, passport, io){
         engine.renderBizProfile(req, res);
     });
     
-    app.get('/beenhere/:id', function(req, res){
+    app.get('/beenhere/:id', loggedIn, function(req, res){
         engine.beenHere(req, res);
     });
     
-    app.get('/bookmark/:id', function(req, res){
+    app.get('/bookmark/:id', loggedIn, function(req, res){
         engine.bookMark(req, res);
     });
     
@@ -44,11 +44,11 @@ module.exports = function(app, passport, io){
     });
     
     app.get('/profile/:id', myProfileOrNot, function(req, res){
-        res.send('profile '+req.params.id);
+        engine.renderProfile(req, res);
     });
     
     app.get('/myprofile', loggedIn, function(req, res){
-        res.send('my profile');
+        engine.renderMyProfile(req, res);
     });
     
     app.get('/logout', function(req, res){
@@ -66,6 +66,15 @@ module.exports = function(app, passport, io){
         });
         socket.on('older', function(offset){
             engine.emitOlderPost(io, socket, offset);
+        });
+        socket.on('place', function(place){
+            engine.emitPlace(io, socket, place, 'place');
+        });
+        socket.on('book', function(book){
+            engine.emitPlace(io, socket, book, 'book');
+        });
+        socket.on('remove', function(who, mode, what){
+            engine.removePlace(who, mode, what);
         });
     });
     
@@ -85,5 +94,5 @@ function myProfileOrNot(req, res, next){
 
 function loggedIn(req, res, next){
     if(req.user) return next();
-    return res.redirect('/');
+    return res.render('404.ejs');
 }
