@@ -1,5 +1,7 @@
 var Yelp = require("yelp");
 var yelp = new Yelp(require('../config/yelp'));
+var UserData = require("./models/userdata");
+var Feed = require("./models/feed");
 
 module.exports.renderIndex = function(req, res){
     if(!req.user) {
@@ -95,8 +97,7 @@ module.exports.renderBizProfile = function(req, res){
 };
 
 module.exports.beenHere = function(req, res) {
-    var userData = require("./models/userdata");
-    userData.findOneAndUpdate(
+    UserData.findOneAndUpdate(
         {facebookID: req.user.facebookID}, 
         {$addToSet: {places: req.params.id}},
         {safe: true, upsert: true},
@@ -108,8 +109,7 @@ module.exports.beenHere = function(req, res) {
 };
 
 module.exports.bookMark = function(req, res) {
-    var userData = require("./models/userdata");
-    userData.findOneAndUpdate(
+    UserData.findOneAndUpdate(
         {facebookID: req.user.facebookID}, 
         {$addToSet: {bookmarks: req.params.id}},
         {safe: true, upsert: true},
@@ -121,7 +121,6 @@ module.exports.bookMark = function(req, res) {
 };
 
 function saveFeed(who, action, where){
-    var Feed = require("./models/feed");
     var newFeed = new Feed();
     
     newFeed.who = who;
@@ -161,8 +160,6 @@ module.exports.emitOlderPost = function(io, socket, offset){
 };
 
 function buildFeed(offset){
-    var userData = require("./models/userdata");
-    var Feed = require("./models/feed");
     return new Promise(function(resolve, reject){
         Feed.find()
             .sort({when: -1})
@@ -185,7 +182,7 @@ function buildFeed(offset){
                     action: array[i].action
                 });
                 function getContent(i){
-                    userData.findOne({facebookID: array[i].who}, function(err, user){
+                    UserData.findOne({facebookID: array[i].who}, function(err, user){
                         if(err) throw err;
                         resultArray[i].picture = user.picture;
                         resultArray[i].name = user.name;
@@ -206,7 +203,6 @@ function buildFeed(offset){
 }
 
 module.exports.renderProfile = function(req, res){
-    var UserData = require('./models/userdata');
     UserData.findOne({facebookID: req.params.id}, function(err, profile){
         if(err || !profile) res.render('404.ejs');
         if(!req.user){
@@ -228,7 +224,6 @@ module.exports.renderProfile = function(req, res){
 };
 
 module.exports.renderMyProfile = function(req, res){
-    var UserData = require('./models/userdata');
     UserData.findOne({facebookID: req.user.facebookID}, function(err, profile){
         if(err || !profile) res.render('404.ejs');
         req.user.getUnread()
@@ -252,7 +247,6 @@ module.exports.emitPlace = function(io, socket, place, mode){
 //this module might easily be hacked by manipulating the front end code,
 //looking for improvement in the future
 module.exports.removePlace = function(who, mode, what){
-    var UserData = require("./models/userdata");
     if(mode==='places'){
         UserData.update({
             facebookID: who
