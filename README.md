@@ -1,4 +1,3 @@
-WANDERLUSTBOOK
+WEBDERLUST
 --------------
-by Stanley
-inspiration from Facebook
+A network for travellers by Stanley
