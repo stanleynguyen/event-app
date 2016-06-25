@@ -19,8 +19,10 @@ module.exports = function(app, passport, io){
         engine.bookMark(req, res);
     });
     
-    app.get('/chat', function(req, res){
-        res.render('chat.ejs');
+    app.get('/chat/new/:id', loggedIn, gotExistingChat);
+    
+    app.get('/chat/:id', loggedIn, function(req, res){
+        res.send('Inside chat '+req.params.id);
     });
     
     app.get('/auth/facebook', passport.authenticate('facebook'));
@@ -95,4 +97,22 @@ function myProfileOrNot(req, res, next){
 function loggedIn(req, res, next){
     if(req.user) return next();
     return res.render('404.ejs');
+}
+
+function gotExistingChat(req, res){
+    var Chat = require('./models/chat');
+    Chat.findOne({who: {$all: [req.user.facebookID, req.params.id]}}, function(err, chat){
+        if(err) throw err;
+        if(chat){
+            res.redirect('/chat/'+chat.id);
+        }else{
+            var newChat = new Chat();
+            newChat.who = [req.user.facebookID, req.params.id];
+            newChat.messages = [];
+            newChat.save(function(err, chat){
+                if(err) throw err;
+                res.redirect('/chat/'+chat.id);
+            });
+        }
+    });
 }

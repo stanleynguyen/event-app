@@ -28,9 +28,9 @@
                 <div class='row'>
                     <div class='col-xs-1'></div>
                     <% if(user){ %>
-                    <a class='btn btn-default col-xs-5 col-md-12' style='margin: 2% auto 0 auto;' href='/message/new/<%= profile.facebookID %>'><i class='glyphicon glyphicon-comment'></i> Message</a>
+                    <a class='btn btn-default col-xs-5 col-md-12' style='margin: 2% auto 0 auto;' href='/chat/new/<%= profile.facebookID %>'><i class='glyphicon glyphicon-comment'></i> Message</a>
                     <% }else{ %>
-                    <a class='btn btn-default disabled col-xs-5 col-md-12' style='margin: 2% auto 0 auto;' href='/message/new/<%= profile.facebookID %>'><i class='glyphicon glyphicon-comment'></i> Message</a>
+                    <a class='btn btn-default disabled col-xs-5 col-md-12' style='margin: 2% auto 0 auto;' href='/chat/new/<%= profile.facebookID %>'><i class='glyphicon glyphicon-comment'></i> Message</a>
                     <% } %>
                     <a class='btn btn-primary col-xs-5 col-md-12' style='margin: 2% auto 0 auto;' href='<%= profile.facebookProfile %>' target='_blank'><i class='fa fa-facebook'></i> Find Me</a>
                 </div>
