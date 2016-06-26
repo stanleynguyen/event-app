@@ -1,0 +1,26 @@
+<% include ./parts/layout %>
+<% include ./parts/loggednav %>
+<body>
+    <div class='container'>
+        <div class='jumbotron'>
+            <h1>Inbox</h1>
+        </div>
+        <div class='list-group'></div>
+    </div>
+    <script src='/socket.io/socket.io.js'></script>
+    <script>
+        var socket = io();
+        var chats = <%- JSON.stringify(chats) %>;
+        for(var chat in chats){
+            socket.emit('inbox', '<%= user.facebookID %>', chat);
+        }
+        socket.on('inbox', function(chat, who){
+            var appendText = "<a class='list-group-item' href='/chat/"+chat._id+"'>"+who;
+            if(chats[chat._id] === "unread"){
+                appendText += " <span class='pull-right label label-danger'>unread</span>"
+            }
+            appendText += "</a>";
+            $('.list-group').append(appendText);
+        });
+    </script>
+</body>

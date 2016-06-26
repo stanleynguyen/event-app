@@ -267,6 +267,34 @@ module.exports.removePlace = function(who, mode, what){
     }
 };
 
+module.exports.renderInbox = function(req, res){
+    req.user.getUnread()
+    .then(function(info){
+        UserData.findOne({facebookID: req.user.facebookID}, 'chats', function(err, user){
+            if(err) throw err;
+            res.render('inbox.ejs', {
+                user: req.user,
+                info: info,
+                chats: user.chats
+            });
+        });
+    });
+};
+
+module.exports.emitChatInfo = function(io, socket, user, chat){
+    Chat.findById(chat, 'who', function(err, chat){
+        if(err) throw err;
+        chat.who.forEach(function(who){
+            if(who.toString()!==user){
+                UserData.findOne({facebookID: who}, 'name', function(err, data){
+                    if(err) throw err;
+                    io.to(socket.id).emit('inbox', chat, data.name);
+                });
+            }
+        });
+    });
+};
+
 module.exports.renderChat = function(req, res) {
     req.user.getUnread()
     .then(function(info){

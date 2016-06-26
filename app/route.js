@@ -19,6 +19,10 @@ module.exports = function(app, passport, io){
         engine.bookMark(req, res);
     });
     
+    app.get('/inbox', loggedIn, function(req, res){
+        engine.renderInbox(req, res);
+    });
+    
     app.get('/chat/new/:id', loggedIn, gotExistingChat);
     
     app.get('/chat/:id', loggedIn, function(req, res){
@@ -87,6 +91,9 @@ module.exports = function(app, passport, io){
         });
         socket.on('message', function(room, message){
             engine.saveMessage(message, room, socket, io);
+        });
+        socket.on('inbox', function(user, chat){
+            engine.emitChatInfo(io, socket, user, chat);
         });
     });
     
