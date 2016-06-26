@@ -57,6 +57,16 @@ module.exports = function(app, passport, io){
         engine.renderMyProfile(req, res);
     });
     
+    app.get('/settings', loggedIn, function(req, res){
+        req.user.getUnread()
+        .then(function(info){
+            res.render('settings.ejs', {
+                user: req.user,
+                info: info
+            });
+        });
+    });
+    
     app.get('/logout', function(req, res){
         req.logout();
         res.redirect('/');

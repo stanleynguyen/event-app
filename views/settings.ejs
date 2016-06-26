@@ -1,0 +1,16 @@
+<% include ./parts/layout %>
+<% include ./parts/loggednav %>
+<body>
+    <div class='container'>
+        <form class='form-group'>
+            <fieldset>
+                <label>Name</label>
+                <input class='form-control' value='<%= user.name %>' disabled> <br/>
+            </fieldset>
+            <fieldset>
+                <label>Facebook ID</label>
+                <input class='form-control' value='<%= user.facebookID %>' disabled> <br/>
+            </fieldset>
+        </form>
+    </div>
+</body>
