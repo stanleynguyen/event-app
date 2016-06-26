@@ -12,7 +12,7 @@
                 <div class="panel-heading">
                     <span class="glyphicon glyphicon-comment"></span> Chat with <%= mate.name %>
                 </div>
-                <div class="panel-body">
+                <div class="panel-body" style='position: relative;'>
                     <ul class="chat">
                         <% chat.messages.forEach( function(message){ %>
                         <li class="left clearfix"><span class="chat-img pull-left">
@@ -38,6 +38,7 @@
                         </li>
                         <% }) %>
                     </ul>
+                    <div id='typing' class='text-muted' style='position: absolute; bottom: 5px;'><small><%= mate.name %> is typing...</small></div>
                 </div>
                 <div class="panel-footer">
                     <form class='form-group'>
@@ -98,5 +99,15 @@
         </li>';
         $('.chat').append(appendText);
         $('.panel-body').animate({scrollTop: $('.panel-body ul').height()});
+    });
+    $('#typing').hide();
+    $('input').keydown(function(){
+        socket.emit('typing', '<%= chat.id %>');
+    });
+    socket.on('typing', function(){
+        $('#typing').show();
+        setTimeout(function(){
+            $('#typing').hide();
+        }, 750);
     })
 </script>

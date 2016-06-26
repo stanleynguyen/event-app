@@ -105,6 +105,9 @@ module.exports = function(app, passport, io){
         socket.on('inbox', function(user, chat){
             engine.emitChatInfo(io, socket, user, chat);
         });
+        socket.on('typing', function(room){
+            socket.broadcast.to(room).emit('typing');
+        });
     });
     
 };
