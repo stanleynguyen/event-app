@@ -2,6 +2,7 @@ var Yelp = require("yelp");
 var yelp = new Yelp(require('../config/yelp'));
 var UserData = require("./models/userdata");
 var Feed = require("./models/feed");
+var Chat = require("./models/chat");
 
 module.exports.renderIndex = function(req, res){
     if(!req.user) {
@@ -264,5 +265,63 @@ module.exports.removePlace = function(who, mode, what){
             if(err) throw err;
         });
     }
+};
+
+module.exports.renderChat = function(req, res) {
+    req.user.getUnread()
+    .then(function(info){
+        new Promise(function (resolve, reject){
+            Chat.findById(req.params.id, function(err, chat){
+                if(err) return reject(err);
+                if(chat.who.indexOf(req.user.facebookID)===-1) return reject('not authorized');
+                if(!chat) {
+                    res.render('404.ejs');
+                }else{
+                    resolve(chat);
+                }
+            })
+            .then(function(chat){
+                return new Promise(function(resolve, reject){
+                    UserData.find({facebookID: {$in: chat.who}}, 'facebookID name picture', function(err, users){
+                        if(err) return reject(err);
+                        for(var i in users){
+                            if(users[i].facebookID===req.user.facebookID){
+                                var me = users[i];
+                            }else{
+                                var mate = users[i];
+                            }
+                        }
+                        resolve({chat: chat, me: me, mate: mate});
+                    });
+                });
+            })
+            .then(function(value){
+                res.render('chat.ejs', {
+                    user: req.user,
+                    info: info,
+                    chat: value.chat,
+                    me: value.me,
+                    mate: value.mate
+                });
+            });
+        });
+    });
+};
+
+module.exports.saveMessage = function(message, room, socket, io){
+    var savedMessage = {
+        who: message.who,
+        when: message.when,
+        content: message.content
+    };
+    io.to(room).emit('message', savedMessage);
+    Chat.findOneAndUpdate({_id: room}, {$push: {messages: savedMessage}}, {new: true}, function(err, savedMessage){
+        if(err) throw err;
+        if(io.sockets.adapter.rooms[room].length === 1){
+            UserData.findOneAndUpdate({facebookID: message.to}, {['chats.'+room]: "unread"}, function(err){
+                if(err) throw err;
+            });
+        }
+    });
 };
 

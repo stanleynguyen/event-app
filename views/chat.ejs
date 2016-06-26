@@ -1,42 +1,42 @@
 <% include ./parts/layout %>
-<% include ./parts/navbar %>
-<link href='./css/chat.css' rel='stylesheet' type='text/css'>
+<% include ./parts/loggednav %>
+<link href='../css/chat.css' rel='stylesheet' type='text/css'>
+<style>
+    .img-rounded {
+        width: 50px;
+    }
+</style>
 <div class="container">
     <div class="row">
             <div class="panel panel-primary">
                 <div class="panel-heading">
-                    <span class="glyphicon glyphicon-comment"></span> Chat
+                    <span class="glyphicon glyphicon-comment"></span> Chat with <%= mate.name %>
                 </div>
                 <div class="panel-body">
                     <ul class="chat">
+                        <% chat.messages.forEach( function(message){ %>
                         <li class="left clearfix"><span class="chat-img pull-left">
-                            <img src="http://placehold.it/50/55C1E7/fff&amp;text=U" alt="User Avatar" class="img-rounded">
+                            <% if(message.who === me.facebookID){ %>
+                            <img src="<%= me.picture %>" alt="User Avatar" class="img-rounded">
+                            <% }else if(message.who === mate.facebookID){ %>
+                            <img src="<%= mate.picture %>" alt="User Avatar" class="img-rounded">
+                            <% } %>
                         </span>
                             <div class="chat-body clearfix">
                                 <div class="header">
-                                    <strong class="primary-font">Jack Sparrow</strong><br><small class="text-muted">
-                                        <span class="glyphicon glyphicon-time"></span>Wed Jun 22 2016 15:08:08 GMT+0800 (SGT)</small>
+                                    <% if(message.who === me.facebookID){ %>
+                                    <strong class="primary-font"><%= me.name %></strong><br>
+                                    <% }else if(message.who === mate.facebookID){ %>
+                                    <strong class="primary-font"><%= mate.name %></strong><br>
+                                    <% } %>
+                                    <small class="text-muted"><span class="glyphicon glyphicon-time"></span><%- (new Date(parseInt(message.when, 10))).toUTCString() %></small>
                                 </div>
                                 <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
-                                    dolor, quis ullamcorper ligula sodales.
+                                    <%= message.content %>
                                 </p>
                             </div>
                         </li>
-                        <li class="left clearfix"><span class="chat-img pull-left">
-                            <img src="http://placehold.it/50/FA6F57/fff&amp;text=ME" alt="User Avatar" class="img-rounded">
-                        </span>
-                            <div class="chat-body clearfix">
-                                <div class="header">
-                                    <strong class="primary-font">Bhaumik Patel</strong><br><small class="text-muted">
-                                        <span class="glyphicon glyphicon-time"></span>Wed Jun 22 2016 15:08:08 GMT+0800 (SGT)</small>
-                                </div>
-                                <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
-                                    dolor, quis ullamcorper ligula sodales.
-                                </p>
-                            </div>
-                        </li>
+                        <% }) %>
                     </ul>
                 </div>
                 <div class="panel-footer">
@@ -57,4 +57,46 @@
     $(window).resize(function() {
         $('.panel-body').css('height', window.innerHeight*7/12);
     });
+</script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var me = <%- JSON.stringify(me) %>;
+    var mate = <%- JSON.stringify(mate) %>;
+    var socket = io();
+    $('.panel-body').animate({scrollTop: $('.panel-body ul').height()});
+    socket.emit('join', '<%= chat.id %>', me.facebookID);
+    $('form').submit(function(){
+        event.preventDefault();
+        var message = {
+            who: me.facebookID,
+            to: mate.facebookID,
+            when: Date.now(),
+            content: $('input').val().toString()
+        }
+        socket.emit('message', '<%= chat.id %>', message);
+        $('input').val('');
+    })
+    socket.on('message', function(message){
+        var appendText = "<li class=\"left clearfix\"><span class=\"chat-img pull-left\">"
+        if(message.who === me.facebookID){
+            appendText += '<img src="'+me.picture+'" alt="User Avatar" class="img-rounded">';
+        }else if(message.who === mate.facebookID){
+            appendText += '<img src="'+mate.picture+'" alt="User Avatar" class="img-rounded">';
+        }
+        appendText += '</span><div class="chat-body clearfix"><div class="header">';
+        if(message.who === me.facebookID){
+            appendText += '<strong class="primary-font">'+me.name+'</strong><br>';
+        }else if(message.who === mate.facebookID){
+            appendText += '<strong class="primary-font">'+mate.name+'</strong><br>';
+        }
+        appendText += '<small class="text-muted"><span class="glyphicon glyphicon-time"></span>'+(new Date(parseInt(message.when, 10))).toUTCString()+'</small>\
+                </div>\
+                <p>'
+                    +message.content+'\
+                </p>\
+            </div>\
+        </li>';
+        $('.chat').append(appendText);
+        $('.panel-body').animate({scrollTop: $('.panel-body ul').height()});
+    })
 </script>

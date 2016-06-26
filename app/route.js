@@ -22,7 +22,7 @@ module.exports = function(app, passport, io){
     app.get('/chat/new/:id', loggedIn, gotExistingChat);
     
     app.get('/chat/:id', loggedIn, function(req, res){
-        res.send('Inside chat '+req.params.id);
+        engine.renderChat(req, res);
     });
     
     app.get('/auth/facebook', passport.authenticate('facebook'));
@@ -78,6 +78,16 @@ module.exports = function(app, passport, io){
         socket.on('remove', function(who, mode, what){
             engine.removePlace(who, mode, what);
         });
+        socket.on('join', function(room, who){
+            socket.join(room);
+            var UserData = require("./models/userdata");
+            UserData.findOneAndUpdate({facebookID: who}, {['chats.'+room]: "read"}, function(err){
+                if(err) throw err;
+            });
+        });
+        socket.on('message', function(room, message){
+            engine.saveMessage(message, room, socket, io);
+        });
     });
     
 };
@@ -101,6 +111,7 @@ function loggedIn(req, res, next){
 
 function gotExistingChat(req, res){
     var Chat = require('./models/chat');
+    var UserData = require("./models/userdata");
     Chat.findOne({who: {$all: [req.user.facebookID, req.params.id]}}, function(err, chat){
         if(err) throw err;
         if(chat){
@@ -111,7 +122,10 @@ function gotExistingChat(req, res){
             newChat.messages = [];
             newChat.save(function(err, chat){
                 if(err) throw err;
-                res.redirect('/chat/'+chat.id);
+                UserData.update({facebookID: {$in: chat.who}}, {['chats.'+chat.id]: 'read'}, {multi:true}, function(err){
+                    if(err) throw err;
+                    res.redirect('/chat/'+chat.id);
+                });
             });
         }
     });
