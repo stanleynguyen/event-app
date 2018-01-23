@@ -11,7 +11,11 @@ app.set('view engine', 'ejs');
 app.use(favicon('./views/public/favicon.jpg'));
 app.use(express.static('./views/public'));
 app.use(require('body-parser').urlencoded({extended: true}));
-app.use(require('express-session')({secret: 'daretostanley', resave: true, saveUninitialized: true}));
+app.use(require('cookie-session')({
+    name: 'session',
+    keys: ['daretostanley'],
+    maxAge: 24 * 60 * 60 * 1000
+  }));
 app.use(passport.initialize());
 app.use(passport.session());
 
